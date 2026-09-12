@@ -18,13 +18,18 @@
 // stock figure that has since gone to zero, is worse off than one who can see the connection
 // is down. Those requests are left to fail, which is also what tells src/sync.js the server
 // is unreachable so the badge can go red.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = `pos-shell-${VERSION}`;
 
 // Fetched at install so the shell survives an outage that begins before the first reload.
 // Only the entry point: everything hashed under /static/ is picked up as it is requested,
 // because its filenames contain a build hash this file cannot know in advance.
-const PRECACHE = ['/', '/manifest.json'];
+// Everything is resolved against the worker's own scope rather than the domain root: the
+// GitHub Pages demo is served from /liquor-store-pos/, where a hardcoded '/' precaches the
+// wrong page and /static/ never matches. On a real deployment the scope IS '/', so this is
+// the same behaviour with one fewer assumption.
+const BASE = new URL(self.registration.scope).pathname;   // always ends in '/'
+const PRECACHE = [BASE, BASE + 'manifest.json'];
 
 // Last resort, for a browser that has never successfully loaded the app — there is nothing
 // cached to fall back to and nothing useful it can do offline.
@@ -51,7 +56,7 @@ self.addEventListener('activate', (e) => e.waitUntil((async () => {
   await self.clients.claim();
 })()));
 
-const isStatic = (p) => p.startsWith('/static/');
+const isStatic = (p) => p.startsWith(BASE + 'static/');
 
 async function putIfOk(request, res) {
   // Only real, complete, same-origin successes. An opaque or partial response cached here
@@ -87,14 +92,14 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;                        // never cache a sale
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;             // fonts, print bridge, Sentry
-  if (url.pathname.startsWith('/api/')) return;                // see the note at the top
+  if (url.pathname.startsWith(BASE + 'api/') || url.pathname.startsWith('/api/')) return;                // see the note at the top
   if (request.headers.has('range')) return;                    // video seeking (login-bg.mp4)
 
   // A navigation is the whole point: this is the reload during an outage that used to hit a
   // dead end. Falls back to the cached shell, and only then to the notice.
   if (request.mode === 'navigate') {
     event.respondWith(
-      networkFirst(request, '/').catch(
+      networkFirst(request, BASE).catch(
         () => new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
       )
     );

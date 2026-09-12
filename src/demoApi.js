@@ -5,25 +5,37 @@
 // localStorage so data survives reloads. The real Heroku build never imports this.
 //
 // Demo logins (any password):  admin / admin   ·   cashier / cashier
-const LS_KEY = 'dukkan_demo_db';
+const LS_KEY = 'liquor_demo_db_v2';
 const DEMO_BANNER = true;
 
 const seed = () => ({
   products: [
-    { id: 1, barcode: '6281000011002', name: 'Laban 1L', price: 1.250, cat: 'Dairy', cost: 0.9, stock: 24, unit: 'ea', active: true },
-    { id: 2, barcode: '6281000022003', name: 'Pita Bread', price: 0.400, cat: 'Bakery', cost: 0.25, stock: 60, unit: 'ea', active: true },
-    { id: 3, barcode: '5449000000996', name: 'Cola 330ml', price: 0.500, cat: 'Drinks', cost: 0.3, stock: 4, unit: 'ea', active: true },
-    { id: 4, barcode: '6281000033004', name: 'Potato Chips', price: 0.750, cat: 'Snacks', cost: 0.45, stock: 18, unit: 'ea', active: true },
-    { id: 5, barcode: '6281000044005', name: 'Tomatoes (per kg)', price: 0.900, cat: 'Produce', cost: 0.6, stock: 30, unit: 'kg', active: true },
-    { id: 6, barcode: '6281000055006', name: 'Dish Soap', price: 1.100, cat: 'Household', cost: 0.7, stock: 9, unit: 'ea', active: true },
+    { id: 1,  barcode: '5000267024004', name: "Johnnie Walker Black 700ml", price: 24.000, cat: 'Whiskey',     cost: 17.0, stock: 18, unit: 'ea', size: '700ml', low_at: 4, active: true },
+    { id: 2,  barcode: '5000267014005', name: "Jack Daniel's No.7 1L",     price: 28.500, cat: 'Whiskey',     cost: 20.0, stock: 11, unit: 'ea', size: '1L',    low_at: 4, active: true },
+    { id: 3,  barcode: '5010677014007', name: 'Absolut Vodka 700ml',        price: 16.000, cat: 'Vodka',       cost: 11.0, stock: 22, unit: 'ea', size: '700ml', low_at: 5, active: true },
+    { id: 4,  barcode: '4750021000133', name: 'Smirnoff Red 1L',            price: 14.000, cat: 'Vodka',       cost: 9.5,  stock: 3,  unit: 'ea', size: '1L',    low_at: 5, active: true },
+    { id: 5,  barcode: '5000289020503', name: 'Bombay Sapphire 700ml',      price: 21.000, cat: 'Gin',         cost: 15.0, stock: 9,  unit: 'ea', size: '700ml', low_at: 4, active: true },
+    { id: 6,  barcode: '087000007499',  name: 'Bacardi Carta Blanca 700ml', price: 17.500, cat: 'Rum',         cost: 12.0, stock: 14, unit: 'ea', size: '700ml', low_at: 4, active: true },
+    { id: 7,  barcode: '7501035042100', name: 'Jose Cuervo Especial 700ml', price: 22.000, cat: 'Tequila',     cost: 15.5, stock: 7,  unit: 'ea', size: '700ml', low_at: 3, active: true },
+    { id: 8,  barcode: '3049197001504', name: 'Hennessy VS 700ml',          price: 39.000, cat: 'Brandy',      cost: 29.0, stock: 5,  unit: 'ea', size: '700ml', low_at: 3, active: true },
+    { id: 9,  barcode: '6281000101000', name: 'Arak Haddad 750ml',          price: 12.000, cat: 'Arak',        cost: 7.5,  stock: 26, unit: 'ea', size: '750ml', low_at: 6, active: true },
+    { id: 10, barcode: '5010103915205', name: 'Baileys Original 700ml',     price: 19.000, cat: 'Liqueur',     cost: 13.0, stock: 12, unit: 'ea', size: '700ml', low_at: 4, active: true },
+    { id: 11, barcode: '8410415510017', name: 'Rioja Reserva Red 750ml',    price: 15.500, cat: 'Wine',        cost: 10.0, stock: 20, unit: 'ea', size: '750ml', low_at: 5, active: true },
+    { id: 12, barcode: '9300727043733', name: 'Sauvignon Blanc 750ml',      price: 13.000, cat: 'Wine',        cost: 8.5,  stock: 2,  unit: 'ea', size: '750ml', low_at: 5, active: true },
+    { id: 13, barcode: '4001686341001', name: 'Heineken 330ml',             price: 1.750,  cat: 'Beer',        cost: 1.1,  stock: 96, unit: 'ea', size: '330ml', low_at: 24, active: true },
+    { id: 14, barcode: '5411681001005', name: 'Corona Extra 355ml',         price: 2.000,  cat: 'Beer',        cost: 1.3,  stock: 48, unit: 'ea', size: '355ml', low_at: 24, active: true },
+    { id: 15, barcode: '3049614050107', name: 'Moet & Chandon Brut 750ml',  price: 62.000, cat: 'Champagne',   cost: 46.0, stock: 4,  unit: 'ea', size: '750ml', low_at: 2, active: true },
+    { id: 16, barcode: '5449000000996', name: 'Schweppes Tonic 250ml',      price: 0.600,  cat: 'Mixers',      cost: 0.35, stock: 72, unit: 'ea', size: '250ml', low_at: 24, active: true },
+    { id: 17, barcode: '5449000011527', name: 'Coca-Cola 330ml',            price: 0.500,  cat: 'Mixers',      cost: 0.3,  stock: 60, unit: 'ea', size: '330ml', low_at: 24, active: true },
+    { id: 18, barcode: '6281000202001', name: 'Corkscrew & Pourer Set',     price: 4.500,  cat: 'Accessories', cost: 2.2,  stock: 15, unit: 'ea', size: null,    low_at: 3, active: true },
   ],
   suppliers: [
-    { id: 1, name: 'Amman Dairy Co.', phone: '06-555-1234', note: '', active: true },
-    { id: 2, name: 'Fresh Farms', phone: '079-555-9876', note: '', active: true },
+    { id: 1, name: 'Jordan Spirits Import', phone: '06-555-1234', note: 'Whiskey / vodka / gin', active: true },
+    { id: 2, name: 'Levant Wine & Beer Co.', phone: '079-555-9876', note: 'Wine, beer, champagne', active: true },
   ],
   batches: [
-    { id: 1, product_id: 1, supplier_id: 1, qty: 24, cost: 0.9, received_at: new Date().toISOString() },
-    { id: 2, product_id: 5, supplier_id: 2, qty: 30, cost: 0.6, received_at: new Date().toISOString() },
+    { id: 1, product_id: 1, supplier_id: 1, qty: 18, cost: 17.0, received_at: new Date().toISOString() },
+    { id: 2, product_id: 11, supplier_id: 2, qty: 20, cost: 10.0, received_at: new Date().toISOString() },
   ],
   nextSupplier: 3,
   nextBatch: 3,
@@ -34,9 +46,9 @@ const seed = () => ({
   ],
   time_clock: [],
   nextPunch: 1,
-  categories: ['Drinks', 'Snacks', 'Dairy', 'Produce', 'Bakery', 'Household', 'Frozen', 'Other'],
+  categories: ['Whiskey', 'Vodka', 'Gin', 'Rum', 'Tequila', 'Brandy', 'Arak', 'Liqueur', 'Wine', 'Beer', 'Champagne', 'Mixers', 'Accessories'],
   invoice: 0,
-  nextId: 7,
+  nextId: 19,
 });
 
 function load() {

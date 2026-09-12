@@ -1,0 +1,64 @@
+name: Deploy demo to GitHub Pages
+
+# The Pages build is the SHOWCASE build, not the product: REACT_APP_DEMO=1 swaps api.js for
+# the in-browser mock (src/demoApi.js), so the whole till runs off localStorage with no
+# server, no Postgres and no credentials anywhere near a public host.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two Pages deploys race; the newest push wins.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      # PUBLIC_URL, not package.json's "homepage": Pages serves this repo from
+      # /liquor-store-pos/, and the service worker and login artwork build absolute URLs
+      # from PUBLIC_URL. A relative "." would point /sw.js and /login-bg.mp4 at the domain
+      # root, where nothing is.
+      - run: npm run build
+        env:
+          CI: false
+          REACT_APP_DEMO: '1'
+          PUBLIC_URL: /liquor-store-pos
+          INLINE_RUNTIME_CHUNK: 'false'
+      # index.html loads /client-config.js as a BLOCKING script — on a server it is the
+      # shop's identity served by server/clientConfig.js. Pages has no server, so point the
+      # tag inside the repo subpath and drop a static file there. Without both, the tag
+      # 404s to the SPA fallback and the browser tries to execute HTML as JavaScript.
+      - name: Static client config for the demo
+        run: |
+          sed -i 's#src="/client-config.js"#src="/liquor-store-pos/client-config.js"#' build/index.html
+          echo "window.__CLIENT__ = { storeName: 'Liquor Store — Demo', currency: 'JOD', store: { key: 'main', taxPct: 16, timezone: 'Asia/Amman' } };" > build/client-config.js
+      # Pages has no SPA rewrite: a reload on a deep link 404s unless 404.html is the app.
+      - run: cp build/index.html build/404.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
